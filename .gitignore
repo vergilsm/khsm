@@ -15,3 +15,11 @@
 /log/*
 !/log/.keep
 /tmp
+
+# Ignoring other junk files
+*.swp
+*~
+.project
+.DS_Store
+.idea
+.secret
