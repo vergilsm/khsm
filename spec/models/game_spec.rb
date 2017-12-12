@@ -3,10 +3,10 @@ require 'support/my_spec_helper' # наш собственный класс с �
 
 RSpec.describe Game, type: :model do
   # пользователь для создания игр
-  let(:user) {FactoryBot.create(:user)}
+  let(:user) {create(:user)}
 
   # игра с прописанными игровыми вопросами
-  let(:game_w_questions) {FactoryBot.create(:game_with_questions, user: user)}
+  let(:game_w_questions) {create(:game_with_questions, user: user)}
 
   # Группа тестов на работу фабрики создания новых игр
   context 'Game Factory' do
@@ -71,6 +71,38 @@ RSpec.describe Game, type: :model do
       expect(game_w_questions.status).to eq :money
       expect(game_w_questions.finished?).to be_truthy
       expect(user.balance).to eq prize
+    end
+
+    # тесты на проверку результатов статуса игры
+    # :won :fail :money :timeout
+    context 'status' do
+
+      # перед каждым тестом "завершаем игру"
+      before(:each) do
+        game_w_questions.finished_at = Time.now
+        expect(game_w_questions.finished?).to be_truthy
+      end
+
+      it 'fail' do
+        game_w_questions.is_failed = true
+        expect(game_w_questions.status).to eq :fail
+      end
+
+      it 'timeout' do
+        game_w_questions.created_at = 36.minutes.ago
+        game_w_questions.is_failed = true
+        expect(game_w_questions.status).to eq :timeout
+      end
+
+      it 'won' do
+        game_w_questions.current_level = Question::QUESTION_LEVELS.max + 1
+        expect(game_w_questions.status).to eq :won
+      end
+
+      it 'money' do
+        game_w_questions.prize = 0
+        expect(game_w_questions.status).to eq :money
+      end
     end
   end
 end
