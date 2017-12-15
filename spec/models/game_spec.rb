@@ -104,5 +104,25 @@ RSpec.describe Game, type: :model do
         expect(game_w_questions.status).to eq :money
       end
     end
+
+    context 'game condition' do
+
+      # текущий неотвеченный вопрос
+      it 'current_game_question' do
+        expect(game_w_questions.current_game_question).to eq game_w_questions.game_questions[0]
+      end
+
+      # отвеченный вопрос игры
+      it 'previous_game_question' do
+        game_w_questions.current_level = 4
+        expect(game_w_questions.previous_game_question).to eq game_w_questions.game_questions[3]
+      end
+
+      # для новой игры -1
+      it 'previous_level' do
+        game_w_questions.current_level = 2
+        expect(game_w_questions.previous_level).to eq 1
+      end
+    end
   end
 end
