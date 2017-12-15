@@ -105,6 +105,7 @@ RSpec.describe Game, type: :model do
       end
     end
 
+    # тесты на методы доступа к состоянию игры
     context 'game condition' do
 
       # текущий неотвеченный вопрос
@@ -122,6 +123,41 @@ RSpec.describe Game, type: :model do
       it 'previous_level' do
         game_w_questions.current_level = 2
         expect(game_w_questions.previous_level).to eq 1
+      end
+    end
+
+    # группа тестов с разными ответами на текущий вопрос
+    context 'answer_current_question!' do
+
+      # ответ верный
+      it 'correct answer' do
+        game_w_questions.answer_current_question!('d')
+        expect(game_w_questions.status).to eq(:in_progress)
+      end
+
+      # ответ неверный
+      it 'incorrect answer' do
+        game_w_questions.answer_current_question!('a')
+        expect(game_w_questions.status).to eq :fail
+      end
+
+      # последний ответ(на миллион)
+      it 'last answer' do
+        user_before_balance = user.balance
+        game_w_questions.current_level = Question::QUESTION_LEVELS.max
+        game_w_questions.answer_current_question!('d')
+
+        expect(game_w_questions.prize).to eq(Game::PRIZES[Question::QUESTION_LEVELS.max])
+        expect(user.balance).to eq(user_before_balance + game_w_questions.prize)
+        expect(game_w_questions.status).to eq :won
+      end
+
+      # ответ дан после изтечения времени
+      it 'answer after the end of time' do
+        game_w_questions.created_at = 36.minutes.ago
+
+        expect(game_w_questions.answer_current_question!(game_w_questions.current_game_question.correct_answer_key)).to be_falsey
+        expect(game_w_questions.status).to eq :timeout
       end
     end
   end
