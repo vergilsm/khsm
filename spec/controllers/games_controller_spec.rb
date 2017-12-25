@@ -64,5 +64,18 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to redirect_to game_path(game)
       expect(flash.empty?).to be_truthy # верный ответ не заполняет flash
     end
+
+    # проверка на то, что в чужую игру нельзя войти
+    it 'show someone elses game' do
+      # игра с новым юзером, созданным фабрикой
+      alien_game = create(:game_with_questions)
+
+      # пробуем зайти в игру текущим залогиненным пользователем
+      get :show, id: alien_game.id
+
+      expect(response.status).not_to eq(200) # статус не 200 ОК
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to be # во flash должна быть прописана ошибка
+    end
   end
 end
