@@ -20,7 +20,7 @@ RSpec.describe GamesController, type: :controller do
     end
   end
 
-  # группа тестов на залогиненного пользователя
+  # группа тестов на экшены контроллера, доступные залогиненному пользователю
   context 'Usual user' do
 
     # будет выполнятся перед каждым тестом внутри группы
@@ -76,6 +76,23 @@ RSpec.describe GamesController, type: :controller do
       expect(response.status).not_to eq(200) # статус не 200 ОК
       expect(response).to redirect_to(root_path)
       expect(flash[:alert]).to be # во flash должна быть прописана ошибка
+    end
+
+    # проверка на то, что юзер забирает деньги до завершения игры
+    it 'took the money?' do
+      # проставляем текущий игровой уровень
+      game_w_questions.update_attribute(:current_level, 4)
+
+      put :take_money, id: game_w_questions.id
+      game = assigns(:game) # поле game берем из контроллера
+
+      expect(game.finished?).to be_truthy # игра должна быть окончена
+      expect(game.prize).to eq 500 # приз равен сумме соответствуюшей уровню
+
+      user.reload # пользователь изменился в БД надо его перезагрузить в коде
+      expect(user.balance).to eq 500 # баланс юзера равен сумме приза
+      expect(response).to redirect_to user_path(user)
+      expect(flash[:warning]).to be
     end
   end
 end
