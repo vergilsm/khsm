@@ -139,6 +139,7 @@ RSpec.describe Game, type: :model do
       it 'incorrect answer' do
         game_w_questions.answer_current_question!('a')
         expect(game_w_questions.status).to eq :fail
+        expect(game_w_questions.finished?).to be_truthy
       end
 
       # последний ответ(на миллион)
@@ -156,7 +157,7 @@ RSpec.describe Game, type: :model do
       it 'answer after the end of time' do
         game_w_questions.created_at = 36.minutes.ago
 
-        expect(game_w_questions.answer_current_question!(game_w_questions.current_game_question.correct_answer_key)).to be_falsey
+        expect(game_w_questions.answer_current_question!('d')).to be_falsey
         expect(game_w_questions.status).to eq :timeout
       end
     end
