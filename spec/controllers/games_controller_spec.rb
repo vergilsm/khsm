@@ -11,8 +11,11 @@ RSpec.describe GamesController, type: :controller do
   let(:game_w_questions) {create(:game_with_questions, user: user)}
 
   context 'Anonim_user' do
-    it 'kick from #show' do
+    it 'kick from #show, #create, #answer, #take_money' do
       get :show, id: game_w_questions.id
+      post :create
+      put :answer, id: game_w_questions.id
+      put :take_money, id: game_w_questions.id
 
       expect(response.status).not_to eq 200
       expect(response).to redirect_to(new_user_session_path)
