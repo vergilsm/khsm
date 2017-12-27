@@ -94,5 +94,20 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to redirect_to user_path(user)
       expect(flash[:warning]).to be
     end
+
+    # тест на попытку создать новую игру, на незаконченной старой
+    it 'create second game?' do
+      # убедились что есть игра в работе
+      expect(game_w_questions.finished?).to be_falsy
+      # отправляем запрос на создание, убеждаемся что новых Game не создалось
+      expect { post :create }.to change(Game, :count).by(0)
+
+      game = assigns(:game) # поле game берем из контроллера
+      expect(game).to be nil
+
+      # редирект на страницу старой игры
+      expect(response).to redirect_to game_path(game_w_questions)
+      expect(flash[:alert]).to be
+    end
   end
 end
