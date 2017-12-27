@@ -68,6 +68,18 @@ RSpec.describe GamesController, type: :controller do
       expect(flash.empty?).to be_truthy # верный ответ не заполняет flash
     end
 
+    # юзер ответил не верно
+    it 'answer not correct' do
+      # даем неверный ответ
+      put :answer, id: game_w_questions.id, letter: 'b'
+
+      game = assigns(:game)
+
+      expect(game.finished?).to be_truthy # игра должна быть закончена
+      expect(response).to redirect_to user_path(user)
+      expect(flash[:alert]).to be
+    end
+
     # проверка на то, что в чужую игру нельзя войти
     it 'show someone elses game' do
       # игра с новым юзером, созданным фабрикой
