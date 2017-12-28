@@ -97,6 +97,7 @@ RSpec.describe GamesController, type: :controller do
       game = assigns(:game)
 
       expect(game.finished?).to be_truthy # игра должна быть закончена
+      expect(game.status).to eq :fail
       expect(response).to redirect_to user_path(user)
       expect(flash[:alert]).to be
     end
