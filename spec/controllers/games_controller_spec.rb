@@ -170,19 +170,14 @@ RSpec.describe GamesController, type: :controller do
       # сперва проверяем что в подсказках текущего вопроса пусто
       expect(game_w_questions.current_game_question.help_hash[:fifty_fifty]).not_to be
       expect(game_w_questions.fifty_fifty_used).to be_falsey
+
       # запрос в контроллер с нужным типом
       put :help, id: game_w_questions.id, help_type: :fifty_fifty
       game = assigns(:game)
 
-      # проверяем, что игра не закончилась, что флажок установился, и подсказка записалась
-      expect(game.finished?).to be_falsey
-      expect(game.fifty_fifty_used).to be_truthy
       expect(game.current_game_question.help_hash[:fifty_fifty]).to be
-
-      ff = game.current_game_question.help_hash[:fifty_fifty]
-      expect(ff).to include 'd' # правильный ответ 'd'
-      expect(ff.count).to eq 2 # в ответе должно быть два варианта
       expect(response).to redirect_to(game_path(game))
+      expect(flash[:info]).to be
     end
   end
 end
